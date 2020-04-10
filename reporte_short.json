@@ -1,0 +1,143 @@
+{
+    "9dejulio-tuc.infd.edu.ar": {
+        "datos": {
+            "material_estudio": {
+                "cursos": [
+                    {
+                        "curso_id": "101",
+                        "match_timestamp": [
+                            {
+                                "archivo": "2-_Be\udce9hell_Leslie_-_TOMO_I_\udcedSOLO_IMPR\udcf3IMIR_DE_125_A_232.pdf",
+                                "id_archivo": "133"
+                            },
+                            {
+                                "archivo": "3-_STERN_paradigmas_de_la_conquista._SOLO_PAG._DE_1_A_10.pdf",
+                                "id_archivo": "135"
+                            },
+                            {
+                                "archivo": "2-_Bethell_Leslie_-_TOMO_I_SOLO_IMPRIMIR_DE_125_A_232_1.pdf",
+                                "id_archivo": "136"
+                            },
+                            {
+                                "archivo": "Montes_Anibal_El_Gran_Alzamiento_Diaguita_1630-1643.pdf",
+                                "id_archivo": "137"
+                            },
+                            {
+                                "archivo": "Relatos-de-viajes1.pdf",
+                                "id_archivo": "58"
+                            }
+                        ],
+                        "resumen": {
+                            "con_timestamp_duplicado": 0,
+                            "con_timestamp_mas_uno": 0,
+                            "no_recuperados": 1,
+                            "recuperados_por_timestamp": 5,
+                            "recuperdos_por_filename": 0
+                        }
+                    },
+                    {
+                        "curso_id": "228",
+                        "match_timestamp": [
+                            {
+                                "archivo": "Ejercicio_grupal-comprension_lectora.docx",
+                                "id_archivo": "130"
+                            }
+                        ],
+                        "resumen": {
+                            "con_timestamp_duplicado": 0,
+                            "con_timestamp_mas_uno": 0,
+                            "no_recuperados": 0,
+                            "recuperados_por_timestamp": 1,
+                            "recuperdos_por_filename": 0
+                        }
+                    },
+                    {
+                        "curso_id": "264",
+                        "match_timestamp": [
+                            {
+                                "archivo": "Alicia-Camilloni.pdf",
+                                "id_archivo": "275"
+                            }
+                        ],
+                        "resumen": {
+                            "con_timestamp_duplicado": 0,
+                            "con_timestamp_mas_uno": 0,
+                            "no_recuperados": 0,
+                            "recuperados_por_timestamp": 1,
+                            "recuperdos_por_filename": 0
+                        }
+                    },
+                    {
+                        "curso_id": "272",
+                        "match_timestamp": [
+                            {
+                                "archivo": "RT_9_1.pdf",
+                                "id_archivo": "292"
+                            }
+                        ],
+                        "resumen": {
+                            "con_timestamp_duplicado": 0,
+                            "con_timestamp_mas_uno": 0,
+                            "no_recuperados": 0,
+                            "recuperados_por_timestamp": 1,
+                            "recuperdos_por_filename": 0
+                        }
+                    },
+                    {
+                        "curso_id": "277",
+                        "match_timestamp": [
+                            {
+                                "archivo": "TEORIA_CLASE_N1.doc",
+                                "id_archivo": "152"
+                            }
+                        ],
+                        "resumen": {
+                            "con_timestamp_duplicado": 0,
+                            "con_timestamp_mas_uno": 0,
+                            "no_recuperados": 0,
+                            "recuperados_por_timestamp": 1,
+                            "recuperdos_por_filename": 0
+                        }
+                    },
+                    {
+                        "curso_id": "302",
+                        "resumen": {
+                            "con_timestamp_duplicado": 0,
+                            "con_timestamp_mas_uno": 0,
+                            "no_recuperados": 1,
+                            "recuperados_por_timestamp": 0,
+                            "recuperdos_por_filename": 0
+                        }
+                    },
+                    {
+                        "curso_id": "303",
+                        "match_timestamp": [
+                            {
+                                "archivo": "01_Creatividad_e_innovacion___Jovenes_Emprendedores_Rurales.mpg",
+                                "id_archivo": "174"
+                            }
+                        ],
+                        "resumen": {
+                            "con_timestamp_duplicado": 0,
+                            "con_timestamp_mas_uno": 0,
+                            "no_recuperados": 0,
+                            "recuperados_por_timestamp": 1,
+                            "recuperdos_por_filename": 0
+                        }
+                    }
+                ],
+                "resumen": {
+                    "con_timestamp_duplicado": 0,
+                    "con_timestamp_mas_uno": 0,
+                    "no_recuperados": 2,
+                    "recuperados_por_timestamp": 10,
+                    "recuperdos_por_filename": 0
+                }
+            }
+        },
+        "first_run": true,
+        "host_data": {
+            "install_id": "9001828"
+        }
+    }
+}
