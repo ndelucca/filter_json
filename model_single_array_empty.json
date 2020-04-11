@@ -1,0 +1,20 @@
+{
+    "host4": {
+        "data": {
+            "item": {
+                "links": [],
+                "summary": {
+                    "h1_data_1": 1,
+                    "h1_data_2": 2,
+                    "h1_data_3": 3,
+                    "h1_data_4": 4,
+                    "h1_data_5": 5
+                }
+            }
+        },
+        "first_run": true,
+        "host_data": {
+            "install_id": "H414454"
+        }
+    }
+}

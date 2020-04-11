@@ -1,0 +1,37 @@
+{
+    "host3": {
+        "data": {
+            "item": {
+                "links": [
+                    {
+                        "link_id": "777",
+                        "link_data": [
+                            {
+                                "content": "README.txt",
+                                "content_id": "8951"
+                            }
+                        ],
+                        "link_summary": {
+                            "h1_data_1": 0,
+                            "h1_data_2": 1,
+                            "h1_data_3": 0,
+                            "h1_data_4": 0,
+                            "h1_data_5": 0
+                        }
+                    }
+                ],
+                "summary": {
+                    "h1_data_1": 0,
+                    "h1_data_2": 1,
+                    "h1_data_3": 0,
+                    "h1_data_4": 0,
+                    "h1_data_5": 0
+                }
+            }
+        },
+        "first_run": true,
+        "host_data": {
+            "install_id": "H389421"
+        }
+    }
+}
