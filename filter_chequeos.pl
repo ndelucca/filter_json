@@ -66,15 +66,16 @@ my %type = (
 #FIXME: random host selection may choose one with an empty array.
 #       This won't print the structure of the elements it may contain.
 if ($opt{schema} || !$opt{node}) {
-    print "Schema for: HOST\n\n";
+    print "HOST\n";
     my $random_host = (keys %$data)[0];
     schema($data->{ $random_host });
     exit;
 }
 elsif (!$opt{key}) {
-    print "Schema for: HOST->$opt{node}\n\n";
+    print "HOST->$opt{node}\n";
     my $random_host = (keys %$data)[0];
-    schema($data->{ $random_host }->{$opt{node}});
+
+    schema( get_node($data->{ $random_host },$opt{node}) );
     exit;
 }
 
@@ -140,4 +141,31 @@ sub schema {
             unless $node_type eq 'String' || $node_type eq 'Boolean';
     }
 
+}
+
+sub get_node{
+    my $host = shift;
+    my $nodes_str = shift;
+
+    my @nodes = split /,/,$nodes_str;
+    my $selected;
+
+    if(@nodes == 1){
+        $selected = $host->{$nodes[0]};
+    }else{
+        my $start_node = shift @nodes;
+        # We know by the structure, that the first node is never an array
+        $selected = $host->{$start_node};
+        # Using while to be able to check ahead later, and maybe guess if things are going sour
+        while (@nodes){
+            my $node = shift @nodes;
+            # Should I check before if the requested item exists?
+            if ($node =~ /\[(.+)\]/){
+                $selected = $selected->[$1];
+            }else{
+                $selected = $selected->{$node};
+            }
+        }
+    }
+    return $selected;
 }
