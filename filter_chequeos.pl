@@ -149,25 +149,24 @@ sub get_node{
     my $nodes_str = shift;
 
     my @nodes = split /,/,$nodes_str;
-    my $selected;
 
-    if(@nodes == 1){
-        $selected = $host->{$nodes[0]};
-    }else{
-        my $start_node = shift @nodes;
-        # We know by the structure, that the first node is never an array
-        $selected = $host->{$start_node};
-        # Using while to be able to check ahead later, and maybe guess if things are going sour
-        #REVIEW: check performance when travelling a full list of hosts
-        while (@nodes){
-            my $node = shift @nodes;
-            #REVIEW: Should I check before if the requested item exists?
-            if ($node =~ /\[(\d+)\]/){
-                $selected = $selected->[$1];
-            }else{
-                $selected = $selected->{$node};
-            }
+    return $host->{$nodes[0]} if @nodes == 1;
+
+    # We know by the structure, that the first node is never an array
+    my $start_node = shift @nodes;
+
+    my $selected = $host->{$start_node};
+    # Using while to be able to check ahead later, and maybe guess if things are going sour
+    #REVIEW: check performance when travelling a full list of hosts
+    while (@nodes){
+        my $node = shift @nodes;
+        #REVIEW: Should I check before if the requested item exists?
+        if ($node =~ /\[(\d+)\]/){
+            $selected = $selected->[$1];
+        }else{
+            $selected = $selected->{$node};
         }
     }
+
     return $selected;
 }
