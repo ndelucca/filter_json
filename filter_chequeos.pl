@@ -8,8 +8,9 @@ use Getopt::Long qw(GetOptions);
 use Scalar::Util qw(looks_like_number);
 
 my $usage = <<EOT;
-Uso: $0 <nombre_archivo> [OPTIONS]
+Uso: $0 <archivo_json> [OPTIONS]
 Opciones:
+-s -schema muestra la estructura del archivo json
 -k -key    key o propiedad a buscar
 -n -node   key interno donde buscar
 
@@ -26,6 +27,7 @@ my %opt = ();
 GetOptions (
     \%opt,
     'help|h',
+    'schema|s',
     'node|n=s',
     'key|k=s',
     'oper|o=s',
@@ -57,29 +59,24 @@ for my $enc (keys %encoding_rpl){
 my %type = (
     'JSON::PP::Boolean' => 'Boolean',
     'HASH'              => 'Hash',
-    ''                  => 'String' #???
+    'ARRAY'             => 'Array',
+    ''                  => 'String' #String or Numbers
 );
 
-if (!$opt{node}) {
-    #print 'Available nodes (-n -node): ', join ', ', sort keys %{ $data->{ (keys %$data)[0] } };
-    my $some_host = $data->{ (keys %$data)[0] };
-    print "Available nodes (-n -node):\n";
-    foreach my $node (sort keys %$some_host ){
-        printf '* %s: %s'.$/, $node, $type{ref $some_host->{$node} };
-    }
-    exit 0;
+#FIXME: random host selection may choose one with an empty array.
+#       This won't print the structure of the elements it may contain.
+if ($opt{schema} || !$opt{node}) {
+    print "Schema for: HOST\n\n";
+    my $random_host = (keys %$data)[0];
+    schema($data->{ $random_host });
+    exit;
 }
-
-if (!$opt{key}) {
-    my $some_host = $data->{ (keys %$data)[0] };
-    my $node = $some_host->{$opt{node}};
-    print "Available keys on node (-k -key):\n";
-    foreach my $key (sort keys %$node ){
-        printf '* %s: %s'.$/, $key, $type{ref $node->{$key} };
-    }
-    exit 0;
+elsif (!$opt{key}) {
+    print "Schema for: HOST->$opt{node}\n\n";
+    my $random_host = (keys %$data)[0];
+    schema($data->{ $random_host }->{$opt{node}});
+    exit;
 }
-
 
 my $filtered = {};
 my %resumen_total = ();
@@ -114,6 +111,32 @@ sub add_to_total{
 
     for my $i (keys %{$hashref}){
         $resumen_total{$i} += $hashref->{$i} if looks_like_number($hashref->{$i});
+    }
+
+}
+
+# Navigate through the json data received,
+# printing the nested structure with data types
+sub schema {
+    my $data = shift;
+    my $level = shift // 1;
+
+    if ($type{ref $data} eq 'Hash') {
+        foreach my $node (sort keys %$data ){
+            my $node_type = $type{ref $data->{$node}};
+            printf '%s%s: %s'.$/, (' ' x $level), $node, $node_type;
+            schema($data->{$node},++$level)
+                unless $node_type eq 'String' || $node_type eq 'Boolean';
+        }
+    }
+    elsif ($type{ref $data} eq 'Array') {
+        my $p = 0;
+        my $node = $data->[$p];
+        my $node_type = $type{ref $node };
+        printf '%s[%s]: %s'.$/, (' ' x $level), $p, $node_type;
+        #FIXME: $node_type is 'String' when array is empty
+        schema($node,++$level)
+            unless $node_type eq 'String' || $node_type eq 'Boolean';
     }
 
 }
