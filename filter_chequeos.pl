@@ -84,6 +84,7 @@ my %resumen_total = ();
 
 for my $host (keys %$data){
 
+    #FIXME: support for a multi-level node definition
     my $item = $data->{$host}->{$opt{node}}->{$opt{key}};
 
     if ( $item ){
@@ -157,10 +158,11 @@ sub get_node{
         # We know by the structure, that the first node is never an array
         $selected = $host->{$start_node};
         # Using while to be able to check ahead later, and maybe guess if things are going sour
+        #REVIEW: check performance when travelling a full list of hosts
         while (@nodes){
             my $node = shift @nodes;
-            # Should I check before if the requested item exists?
-            if ($node =~ /\[(.+)\]/){
+            #REVIEW: Should I check before if the requested item exists?
+            if ($node =~ /\[(\d+)\]/){
                 $selected = $selected->[$1];
             }else{
                 $selected = $selected->{$node};
