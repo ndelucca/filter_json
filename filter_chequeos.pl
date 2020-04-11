@@ -77,11 +77,12 @@ if ( $opt{schema} || !$opt{node} ) {
     #       This won't print the structure of the elements it may contain.
     my $random_host = (keys %$data)[0];
 
-    my $title = "host";
+    my $title = 'host';
     my $search = $data->{ $random_host };
 
     if($opt{node}){
-        $title.="->{$_}" for split /,/,$opt{node};
+        $title.= $_ for map { $_ =~ /\[(\d+)\]/ ? "->[$1]" : "->{$_}" }
+                        split /,/,$opt{node};
         $search = get_node($data->{ $random_host },$opt{node});
     }
 
