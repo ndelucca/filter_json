@@ -11,7 +11,6 @@ my $usage = <<EOT;
 Uso: $0 <archivo_json> [OPTIONS]
 Opciones:
 -s -schema muestra la estructura del archivo json
--k -key    key o propiedad a buscar
 -n -node   key interno donde buscar
 
 -t -total  solo muestra el resumen total de datos
@@ -78,8 +77,6 @@ if ( $opt{schema} || !$opt{node} ) {
     print "$title\n";
     exit schema( $search );
 }
-
-
 
 my $filtered = {};
 my %resumen_total = ();
