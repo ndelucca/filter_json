@@ -9,9 +9,12 @@ use Scalar::Util qw(looks_like_number);
 
 my $usage = <<EOT;
 Uso: $0 <archivo_json> [OPTIONS]
+
 Opciones:
 -s -schema muestra la estructura del archivo json
+
 -n -node   cadena de nodos donde buscar separados con ,
+           indicando key de hash o [0] para un array
 
 -r -render define la estructura que se desea mostrar. permite:
   full:     se muestra todos los datos del host
@@ -46,8 +49,6 @@ my $filename = shift @ARGV or die "Debe indicar un archivo";
 
 die $usage if $opt{help};
 
-my $json = JSON->new();
-
 # Traigo el reporte
 open my $fh, '<', $filename or die "No puede abrirse el archivo json";
 read $fh, my $file_content, -s $fh;
@@ -61,6 +62,7 @@ for my $enc (keys %encoding_rpl){
 # ==============================================================================
 
 # Buscamos la cosa
+my $json = JSON->new();
 my $data = $json->decode($file_content);
 
 my %type = (
@@ -157,6 +159,8 @@ sub get_node{
 
     return $host unless $nodes_str;
 
+    #REVIEW: check performance when travelling a full list of hosts
+    #        define arrayref outside get_node and access elements by index
     my @nodes = split /,/,$nodes_str;
 
     return $host->{$nodes[0]} if @nodes == 1;
@@ -166,7 +170,6 @@ sub get_node{
 
     my $selected = $host->{$start_node};
     # Using while to be able to check ahead later, and maybe guess if things are going sour
-    #REVIEW: check performance when travelling a full list of hosts
     while (@nodes){
         my $node = shift @nodes;
         #REVIEW: Should I check before if the requested item exists?
@@ -194,6 +197,6 @@ sub render_node{
 
     return $render{$opt}() if $render{$opt};
 
-    return $render{node_chain}();
+    return $render{node_chain}->();
 
 }
