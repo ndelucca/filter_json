@@ -11,9 +11,14 @@ my $usage = <<EOT;
 Uso: $0 <archivo_json> [OPTIONS]
 Opciones:
 -s -schema muestra la estructura del archivo json
--n -node   key interno donde buscar
+-n -node   cadena de nodos donde buscar separados con ,
 
--t -total  solo muestra el resumen total de datos
+-r -render define la estructura que se desea mostrar. permite:
+  full:     se muestra todos los datos del host
+  short:    se muestra solo el resumen final, sin datos por host
+  node:     se muestra solo la estructura definida en -n
+  <node chain>  se muestra una estructura segun patron ingresado, con mismo formato que -n
+
 Filtros:
 Por default, si no se indica ningun filtro, se filtran los items vacios
 
@@ -22,12 +27,16 @@ Por default, si no se indica ningun filtro, se filtran los items vacios
 
 EOT
 
-my %opt = ();
+my %opt = (
+    render => 'full',
+    node => ''
+);
 GetOptions (
     \%opt,
     'help|h',
     'schema|s',
     'node|n=s',
+    'render|e=s',
     'oper|o=s',
     'value|v=i',
     'total|t',
@@ -83,23 +92,22 @@ my %resumen_total = ();
 
 for my $host (keys %$data){
 
-    #FIXME: support for a multi-level node definition
     my $item = get_node( $data->{$host}, $opt{node} );
+    my $item_render = render_node( $data->{$host}, $opt{node} , $opt{render} );
 
     if ( $item ){
         if (!$opt{oper}){
-            $filtered->{$host} = $item if $type{ref $item} eq 'String';
-            $filtered->{$host} = $item->{resumen} if $type{ref $item} eq 'Hash' && %{$item};
+            $filtered->{$host} = $item_render if %{$item};
         }else{
-            $filtered->{$host} = $item->{resumen} if eval "$item $opt{oper} $opt{value}";
+            $filtered->{$host} = $item_render if eval "$item $opt{oper} $opt{value}";
         }
 
-        add_to_total($filtered->{$host}) if $type{ref $item} ne 'String';
+        add_to_total($filtered->{$host}) if $type{ref $item_render} ne 'String';
     }
 }
 
 # Output
-if($opt{total}){
+if($opt{render} eq 'short'){
     print $json->utf8->pretty(1)->encode(\%resumen_total);
 }else{
     $filtered->{resumen_total} = \%resumen_total;
@@ -147,6 +155,8 @@ sub get_node{
     my $host = shift;
     my $nodes_str = shift;
 
+    return $host unless $nodes_str;
+
     my @nodes = split /,/,$nodes_str;
 
     return $host->{$nodes[0]} if @nodes == 1;
@@ -168,4 +178,22 @@ sub get_node{
     }
 
     return $selected;
+}
+
+sub render_node{
+    my $host_data = shift;
+    my $nodes_str = shift;
+    my $opt = shift;
+
+    my %render = (
+        full        => sub { return get_node( $host_data ) },
+        short       => sub { return get_node( $host_data, $nodes_str ) },
+        node        => sub { return get_node( $host_data, $nodes_str ) },
+        node_chain  => sub { return get_node( $host_data, $opt ) }, # Maybe needs input filtering
+    );
+
+    return $render{$opt}() if $render{$opt};
+
+    return $render{node_chain}();
+
 }
