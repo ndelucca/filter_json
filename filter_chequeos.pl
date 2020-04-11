@@ -29,7 +29,6 @@ GetOptions (
     'help|h',
     'schema|s',
     'node|n=s',
-    'key|k=s',
     'oper|o=s',
     'value|v=i',
     'total|t',
@@ -63,21 +62,24 @@ my %type = (
     ''                  => 'String' #String or Numbers
 );
 
-#FIXME: random host selection may choose one with an empty array.
-#       This won't print the structure of the elements it may contain.
-if ($opt{schema} || !$opt{node}) {
-    print "HOST\n";
-    my $random_host = (keys %$data)[0];
-    schema($data->{ $random_host });
-    exit;
-}
-elsif (!$opt{key}) {
-    print "HOST->$opt{node}\n";
+if ( $opt{schema} || !$opt{node} ) {
+    #FIXME: random host selection may choose one with an empty array.
+    #       This won't print the structure of the elements it may contain.
     my $random_host = (keys %$data)[0];
 
-    schema( get_node($data->{ $random_host },$opt{node}) );
-    exit;
+    my $title = "host";
+    my $search = $data->{ $random_host };
+
+    if($opt{node}){
+        $title.="->{$_}" for split /,/,$opt{node};
+        $search = get_node($data->{ $random_host },$opt{node});
+    }
+
+    print "$title\n";
+    exit schema( $search );
 }
+
+
 
 my $filtered = {};
 my %resumen_total = ();
@@ -85,7 +87,7 @@ my %resumen_total = ();
 for my $host (keys %$data){
 
     #FIXME: support for a multi-level node definition
-    my $item = $data->{$host}->{$opt{node}}->{$opt{key}};
+    my $item = get_node( $data->{$host}, $opt{node} );
 
     if ( $item ){
         if (!$opt{oper}){
