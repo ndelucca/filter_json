@@ -119,13 +119,13 @@ sub add_to_total{
 # printing the nested structure with data types
 sub schema {
     my $data = shift;
-    my $level = shift // 1;
-
+    my $level = shift // 0;
+    $level++;
     if ($type{ref $data} eq 'Hash') {
         foreach my $node (sort keys %$data ){
             my $node_type = $type{ref $data->{$node}};
-            printf '%s%s: %s'.$/, (' ' x $level), $node, $node_type;
-            schema($data->{$node},++$level)
+            printf '%s%s: %s'.$/, ('-' x $level), $node, $node_type;
+            schema($data->{$node},$level)
                 unless $node_type eq 'String' || $node_type eq 'Boolean';
         }
     }
@@ -133,9 +133,9 @@ sub schema {
         my $p = 0;
         my $node = $data->[$p];
         my $node_type = $type{ref $node };
-        printf '%s[%s]: %s'.$/, (' ' x $level), $p, $node_type;
+        printf '%s[%s]: %s'.$/, ('-' x $level), $p, $node_type;
         #FIXME: $node_type is 'String' when array is empty
-        schema($node,++$level)
+        schema($node,$level)
             unless $node_type eq 'String' || $node_type eq 'Boolean';
     }
 
