@@ -46,15 +46,15 @@ open my $fh, '<', $filename or die "No puede abrirse el archivo json";
 read $fh, my $file_content, -s $fh;
 close $fh;
 
-# Buscamos la cosa
-my $data = $json->decode($file_content);
-
 # ================= Filtro de caracteres codificados en latin1 =================
 my %encoding_rpl =( i => '\\\udced', e => '\\\udce9', o => '\\\udcf3');
 for my $enc (keys %encoding_rpl){
     $file_content =~ s/$encoding_rpl{$enc}/$enc/g if $file_content =~ /$encoding_rpl{$enc}/;
 }
 # ==============================================================================
+
+# Buscamos la cosa
+my $data = $json->decode($file_content);
 
 my %type = (
     'JSON::PP::Boolean' => 'Boolean',
@@ -120,11 +120,12 @@ sub add_to_total{
 sub schema {
     my $data = shift;
     my $level = shift // 0;
+    my $tab = '|   ';
     $level++;
     if ($type{ref $data} eq 'Hash') {
         foreach my $node (sort keys %$data ){
             my $node_type = $type{ref $data->{$node}};
-            printf '%s%s: %s'.$/, ('-' x $level), $node, $node_type;
+            printf '%s%s: %s'.$/, ($tab x $level), $node, $node_type;
             schema($data->{$node},$level)
                 unless $node_type eq 'String' || $node_type eq 'Boolean';
         }
@@ -133,7 +134,7 @@ sub schema {
         my $p = 0;
         my $node = $data->[$p];
         my $node_type = $type{ref $node };
-        printf '%s[%s]: %s'.$/, ('-' x $level), $p, $node_type;
+        printf '%s[%s]: %s'.$/, ($tab x $level), $p, $node_type;
         #FIXME: $node_type is 'String' when array is empty
         schema($node,$level)
             unless $node_type eq 'String' || $node_type eq 'Boolean';
