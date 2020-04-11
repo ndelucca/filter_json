@@ -151,6 +151,12 @@ sub schema {
         schema($node,$level)
             unless $node_type eq 'String' || $node_type eq 'Boolean';
     }
+    elsif ($type{ref $data} eq 'String') {
+        print "String";
+    }
+    elsif ($type{ref $data} eq 'Boolean') {
+        print "Boolean";
+    }
 
 }
 
