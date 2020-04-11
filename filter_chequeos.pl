@@ -36,7 +36,7 @@ GetOptions (
     'help|h',
     'schema|s',
     'node|n=s',
-    'render|e=s',
+    'render|r=s',
     'oper|o=s',
     'value|v=i',
     'total|t',
