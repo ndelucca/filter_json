@@ -89,10 +89,10 @@ my $filters = {
     neq     => sub { return $_[0] == $_[1]  },
     nne     => sub { return $_[0] != $_[1]  },
     #A JSON null atom becomes undef in Perl
-    null    => sub { return ! defined $_[0] },
-    notnull => sub { return   defined $_[0] },
-    false   => sub { return ! $_[0]         },
-    true    => sub { return   $_[0]         },
+    null    => sub { return ! defined $_[0] || empty_hash($_[0]) || empty_array($_[0]) },
+    notnull => sub { return   defined $_[0] && ( !empty_hash($_[0])  || !empty_array($_[0]) ) },
+    false   => sub { return ! $_[0] },
+    true    => sub { return   $_[0] },
 };
 
 for my $host (keys %$data){
@@ -153,21 +153,21 @@ sub schema {
     my $level = shift // 0;
     my $tab = '|   ';
     $level++;
-    if ( type_hash($data) ) {
+    if ( is_hash($data) ) {
         foreach my $node (sort keys %$data ){
             my $inode = $data->{$node};
             printf '%s%s: %s'.$/, ($tab x $level), $node, ucfirst get_type($inode);
             schema($inode,$level)
-                unless type_string($inode) || type_bool($inode);
+                unless is_string($inode) || is_bool($inode);
         }
     }
-    elsif ( type_array($data) ) {
+    elsif ( is_array($data) ) {
         my $p = 0;
         my $inode = $data->[$p];
         printf '%s[%s]: %s'.$/, ($tab x $level), $p, ucfirst get_type($inode);
         #FIXME: inode type is 'String' when array is empty!
         schema($inode,$level)
-            unless type_string($inode) || type_bool($inode);
+            unless is_string($inode) || is_bool($inode);
     }
     else {
         print ucfirst get_type($data) if $level == 1;
@@ -196,7 +196,7 @@ sub get_node{
     # Using while to be able to check ahead later, and maybe guess if things are going sour
     while (@nodes){
         my $node = shift @nodes;
-        #REVIEW: Should I check before if the requested item exists?
+        #FIXME: Should I check before if the requested item exists?
         if ($node =~ /\[(\d+)\]/){
             $selected = $selected->[$1];
         }else{
@@ -241,11 +241,15 @@ sub filter{
 
 # ================= Types management =====================
 
-sub type_hash   { return get_type($_[0]) eq 'hash'    }
-sub type_array  { return get_type($_[0]) eq 'array'   }
-sub type_string { return get_type($_[0]) eq 'string'  }
-sub type_number { return get_type($_[0]) eq 'number'  }
-sub type_bool   { return get_type($_[0]) eq 'boolean' }
+sub is_hash   { return get_type($_[0]) eq 'hash'    }
+sub is_array  { return get_type($_[0]) eq 'array'   }
+sub is_string { return get_type($_[0]) eq 'string'  }
+sub is_number { return get_type($_[0]) eq 'number'  }
+sub is_bool   { return get_type($_[0]) eq 'boolean' }
+
+sub empty_hash  { return is_hash($_[0]) && !%{$_[0]}  }
+sub empty_array { return is_array($_[0]) && !@{$_[0]} }
+
 
 sub get_type {
     my $node = shift;
