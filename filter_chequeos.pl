@@ -74,6 +74,7 @@ my %type = (
 if ( $opt{schema} || !$opt{node} ) {
     #FIXME: random host selection may choose one with an empty array.
     #       This won't print the structure of the elements it may contain.
+    #TODO: throw everything inside a function
     my $random_host = (keys %$data)[0];
 
     my $title = 'host';
