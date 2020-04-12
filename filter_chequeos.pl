@@ -16,22 +16,22 @@ Opciones:
 -n -node   cadena de nodos donde buscar separados con ,
            indicando key de hash o [0] para un array
 
--r -render define la estructura que se desea mostrar. permite:
+-r -render define la estructura que se desea mostrar (default: full)
   full:     se muestra todos los datos del host
   short:    se muestra solo la estructura definida en -n
   <node chain>  se muestra una estructura segun patron ingresado, con mismo formato que -n
 
 -f -filter filtro a aplicar. Si el filtro tiene argumentos, separarlos con ,
 
-Filtros disponibles:
+Filtros disponibles (default: notnull)
+    notnull: nodos con contenido distinto de null    Uso: -f notnull
+    null:    nodos sin contenido o contenido null    Uso: -f null
     gt|ngt:  valor del nodo mayor a <val>.           Uso: -f gt,<string> | -f ngt,<number>
     ge|nge:  valor del nodo mayor o igual a <val>    Uso: -f ge,<string> | -f nge,<number>
     lt|nlt:  valor del nodo menor a <val>            Uso: -f lt,<string> | -f nlt,<number>
     le|nle:  valor del nodo menor o igual a <val>    Uso: -f le,<string> | -f nle,<number>
     eq|neq:  valor del nodo igual a <val>            Uso: -f eq,<string> | -f neq,<number>
     ne|nne:  valor del nodo distinto a <val>         Uso: -f ne,<string> | -f nne,<number>
-    null:    nodos sin contenido o contenido null    Uso: -f null
-    notnull: nodos con contenido distinto de null    Uso: -f notnull
 
 EOT
 
@@ -72,6 +72,7 @@ my $data = $json->decode($file_content);
 
 # Definition of variable types in the structure
 my %type = (
+    #REVIEW: $json->is_pp is true, use JSON::is_bool($scalar)
     'JSON::PP::Boolean' => 'boolean',
     'HASH'              => 'hash',
     'ARRAY'             => 'array',
@@ -84,20 +85,21 @@ my $filtered = {};
 my %resumen_total = ();
 
 my $filters = {
-    'gt' => sub { return $_[0] gt $_[1] },
-    'ge' => sub { return $_[0] ge $_[1] },
-    'lt' => sub { return $_[0] lt $_[1] },
-    'le' => sub { return $_[0] le $_[1] },
-    'eq' => sub { return $_[0] eq $_[1] },
-    'ne' => sub { return $_[0] ne $_[1] },
-    'ngt' => sub { return $_[0] > $_[1] },
-    'nge' => sub { return $_[0] >= $_[1] },
-    'nlt' => sub { return $_[0] < $_[1] },
-    'nle' => sub { return $_[0] <= $_[1] },
-    'neq' => sub { return $_[0] == $_[1] },
-    'nne' => sub { return $_[0] != $_[1] },
-    'null' => sub { return 1 },# FIXME
-    'notnull' => sub { return 1 },# FIXME
+    gt      => sub { return $_[0] gt $_[1]  },
+    ge      => sub { return $_[0] ge $_[1]  },
+    lt      => sub { return $_[0] lt $_[1]  },
+    le      => sub { return $_[0] le $_[1]  },
+    eq      => sub { return $_[0] eq $_[1]  },
+    ne      => sub { return $_[0] ne $_[1]  },
+    ngt     => sub { return $_[0] >  $_[1]  },
+    nge     => sub { return $_[0] >= $_[1]  },
+    nlt     => sub { return $_[0] <  $_[1]  },
+    nle     => sub { return $_[0] <= $_[1]  },
+    neq     => sub { return $_[0] == $_[1]  },
+    nne     => sub { return $_[0] != $_[1]  },
+    #A JSON null atom becomes undef in Perl
+    null    => sub { return ! defined $_[0] },
+    notnull => sub { return defined   $_[0] }
 };
 
 for my $host (keys %$data){
