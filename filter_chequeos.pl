@@ -187,15 +187,14 @@ sub render_node{
     my $nodes_str = shift;
     my $opt = shift;
 
-    my %render = (
+    my %render_options = (
         full        => sub { return get_node( $host_data ) },
         short       => sub { return get_node( $host_data, $nodes_str ) },
         node_chain  => sub { return get_node( $host_data, $opt ) }, # Maybe needs input filtering
     );
 
-    return $render{$opt}->() if $render{$opt};
-
-    return $render{node_chain}->();
+    my $render = $render_options{$opt} || $render_options{node_chain};
+    return $render->();
 
 }
 
