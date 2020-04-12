@@ -94,22 +94,26 @@ if ( $opt{schema} || !$opt{node} ) {
 my $filtered = {};
 my %resumen_total = ();
 
+#TODO: Complete with required operations isnull, notnull?
+my $operations = {
+    'gt' => sub { return $_[0] > $_[1] },
+};
+
 for my $host (keys %$data){
 
     my $item = get_node( $data->{$host}, $opt{node} );
     my $item_render = render_node( $data->{$host}, $opt{node} , $opt{render} );
 
-    if ( $item ){
-        if (!$opt{oper}){
-            #FIXME: fails if $item is an array or string
-            $filtered->{$host} = $item_render if %{$item};
-        }else{
-            $filtered->{$host} = $item_render if eval "$item $opt{oper} $opt{value}";
-        }
-
-        #REVIEW: check condition for calling this subroutine
-        # add_to_total($filtered->{$host}) if type_hash($item_render);
+    if (!$opt{oper}){
+        $filtered->{$host} = $item_render;
+    }else{
+        my $op = $operations->{$opt{oper}} || die "Operacion $opt{oper} desconocida";
+        $filtered->{$host} = $item_render if $op->($item, $opt{value});
     }
+
+    #REVIEW: check condition for calling this subroutine
+    # add_to_total($filtered->{$host}) if type_hash($item_render);
+
 }
 
 print $json->utf8->pretty(1)->encode($filtered);
