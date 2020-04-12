@@ -231,11 +231,11 @@
             "item": {
                 "links": [],
                 "summary": {
-                    "host_link_1": 0,
-                    "host_link_2": 0,
-                    "host_link_3": 0,
-                    "host_link_4": 0,
-                    "host_link_5": 0
+                    "host_links_1": 0,
+                    "host_links_2": 0,
+                    "host_links_3": 0,
+                    "host_links_4": 0,
+                    "host_links_5": 0
                 }
             }
         },
