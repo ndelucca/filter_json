@@ -18,8 +18,7 @@ Opciones:
 
 -r -render define la estructura que se desea mostrar. permite:
   full:     se muestra todos los datos del host
-  short:    se muestra solo el resumen final, sin datos por host
-  node:     se muestra solo la estructura definida en -n
+  short:    se muestra solo la estructura definida en -n
   <node chain>  se muestra una estructura segun patron ingresado, con mismo formato que -n
 
 Filtros:
@@ -108,17 +107,12 @@ for my $host (keys %$data){
         }
 
         #REVIEW: check condition for calling this subroutine
-        add_to_total($filtered->{$host}) if type_hash($item_render);
+        # add_to_total($filtered->{$host}) if type_hash($item_render);
     }
 }
 
-# Output
-if($opt{render} eq 'short'){
-    print $json->utf8->pretty(1)->encode(\%resumen_total);
-}else{
-    $filtered->{resumen_total} = \%resumen_total;
-    print $json->utf8->pretty(1)->encode($filtered);
-}
+print $json->utf8->pretty(1)->encode($filtered);
+exit;
 
 sub add_to_total{
     my $hashref = shift;
@@ -196,7 +190,6 @@ sub render_node{
     my %render = (
         full        => sub { return get_node( $host_data ) },
         short       => sub { return get_node( $host_data, $nodes_str ) },
-        node        => sub { return get_node( $host_data, $nodes_str ) },
         node_chain  => sub { return get_node( $host_data, $opt ) }, # Maybe needs input filtering
     );
 
