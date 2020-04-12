@@ -135,7 +135,7 @@
                 }
             }
         },
-        "first_run": true,
+        "first_run": false,
         "host_data": {
             "install_id": "H161566"
         }
