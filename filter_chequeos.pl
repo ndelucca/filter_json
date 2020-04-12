@@ -70,15 +70,6 @@ for my $enc (keys %encoding_rpl){
 my $json = JSON->new();
 my $data = $json->decode($file_content);
 
-# Definition of variable types in the structure
-my %type = (
-    #REVIEW: $json->is_pp is true, use JSON::is_bool($scalar)
-    'JSON::PP::Boolean' => 'boolean',
-    'HASH'              => 'hash',
-    'ARRAY'             => 'array',
-    ''                  => 'string' #String or Numbers
-);
-
 get_schema($data) if ( $opt{schema} || !$opt{node} );
 
 my $filtered = {};
@@ -99,7 +90,9 @@ my $filters = {
     nne     => sub { return $_[0] != $_[1]  },
     #A JSON null atom becomes undef in Perl
     null    => sub { return ! defined $_[0] },
-    notnull => sub { return defined   $_[0] }
+    notnull => sub { return   defined $_[0] },
+    false   => sub { return ! $_[0]         },
+    true    => sub { return   $_[0]         },
 };
 
 for my $host (keys %$data){
@@ -257,7 +250,11 @@ sub type_bool   { return get_type($_[0]) eq 'boolean' }
 sub get_type {
     my $node = shift;
     return 'undefined' unless defined $node;
-    my $type = $type{ref $node};
-    return 'number' if $type eq 'string' && $node =~ /^\d+(?:\.\d+)?$/;
-    return $type;
+
+    return 'boolean' if JSON::is_bool($node);
+
+    my $ref = ref $node;
+    return 'number' if $ref eq '' && $node =~ /^\d+(?:\.\d+)?$/;
+    return 'string' if $ref eq '';
+    return lc $ref; #array or hash
 }
