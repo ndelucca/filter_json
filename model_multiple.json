@@ -28,11 +28,11 @@
                             }
                         ],
                         "link_summary": {
-                            "h1_data_1": 0,
-                            "h1_data_2": 0,
-                            "h1_data_3": 1,
-                            "h1_data_4": 5,
-                            "h1_data_5": 0
+                            "host_link_1": 0,
+                            "host_link_2": 0,
+                            "host_link_3": 1,
+                            "host_link_4": 5,
+                            "host_link_5": 0
                         }
                     },
                     {
@@ -44,11 +44,11 @@
                             }
                         ],
                         "link_summary": {
-                            "h1_data_1": 0,
-                            "h1_data_2": 0,
-                            "h1_data_3": 0,
-                            "h1_data_4": 1,
-                            "h1_data_5": 0
+                            "host_link_1": 0,
+                            "host_link_2": 0,
+                            "host_link_3": 0,
+                            "host_link_4": 1,
+                            "host_link_5": 0
                         }
                     },
                     {
@@ -60,11 +60,11 @@
                             }
                         ],
                         "link_summary": {
-                            "h1_data_1": 0,
-                            "h1_data_2": 0,
-                            "h1_data_3": 0,
-                            "h1_data_4": 1,
-                            "h1_data_5": 0
+                            "host_link_1": 0,
+                            "host_link_2": 0,
+                            "host_link_3": 0,
+                            "host_link_4": 1,
+                            "host_link_5": 0
                         }
                     },
                     {
@@ -76,11 +76,11 @@
                             }
                         ],
                         "link_summary": {
-                            "h1_data_1": 0,
-                            "h1_data_2": 0,
-                            "h1_data_3": 0,
-                            "h1_data_4": 1,
-                            "h1_data_5": 0
+                            "host_link_1": 0,
+                            "host_link_2": 0,
+                            "host_link_3": 0,
+                            "host_link_4": 1,
+                            "host_link_5": 0
                         }
                     },
                     {
@@ -92,21 +92,21 @@
                             }
                         ],
                         "link_summary": {
-                            "h1_data_1": 0,
-                            "h1_data_2": 0,
-                            "h1_data_3": 0,
-                            "h1_data_4": 1,
-                            "h1_data_5": 0
+                            "host_link_1": 0,
+                            "host_link_2": 0,
+                            "host_link_3": 0,
+                            "host_link_4": 1,
+                            "host_link_5": 0
                         }
                     },
                     {
                         "link_id": "302",
                         "link_summary": {
-                            "h1_data_1": 0,
-                            "h1_data_2": 0,
-                            "h1_data_3": 1,
-                            "h1_data_4": 0,
-                            "h1_data_5": 0
+                            "host_link_1": 0,
+                            "host_link_2": 0,
+                            "host_link_3": 1,
+                            "host_link_4": 0,
+                            "host_link_5": 0
                         }
                     },
                     {
@@ -118,20 +118,20 @@
                             }
                         ],
                         "link_summary": {
-                            "h1_data_1": 0,
-                            "h1_data_2": 0,
-                            "h1_data_3": 0,
-                            "h1_data_4": 1,
-                            "h1_data_5": 0
+                            "host_link_1": 0,
+                            "host_link_2": 0,
+                            "host_link_3": 0,
+                            "host_link_4": 1,
+                            "host_link_5": 0
                         }
                     }
                 ],
                 "summary": {
-                    "h1_data_1": 0,
-                    "h1_data_2": 0,
-                    "h1_data_3": 2,
-                    "h1_data_4": 10,
-                    "h1_data_5": 0
+                    "host_links_1": 0,
+                    "host_links_2": 0,
+                    "host_links_3": 2,
+                    "host_links_4": 10,
+                    "host_links_5": 0
                 }
             }
         },
@@ -153,11 +153,11 @@
                             }
                         ],
                         "link_summary": {
-                            "h1_data_1": 0,
-                            "h1_data_2": 0,
-                            "h1_data_3": 0,
-                            "h1_data_4": 1,
-                            "h1_data_5": 0
+                            "host_link_1": 0,
+                            "host_link_2": 2,
+                            "host_link_3": 0,
+                            "host_link_4": 1,
+                            "host_link_5": 1
                         }
                     },
                     {
@@ -169,20 +169,20 @@
                             }
                         ],
                         "link_summary": {
-                            "h1_data_1": 0,
-                            "h1_data_2": 0,
-                            "h1_data_3": 0,
-                            "h1_data_4": 1,
-                            "h1_data_5": 0
+                            "host_link_1": 3,
+                            "host_link_2": 0,
+                            "host_link_3": 1,
+                            "host_link_4": 1,
+                            "host_link_5": 0
                         }
                     }
                 ],
                 "summary": {
-                    "h1_data_1": 0,
-                    "h1_data_2": 0,
-                    "h1_data_3": 0,
-                    "h1_data_4": 2,
-                    "h1_data_5": 0
+                    "host_links_1": 3,
+                    "host_links_2": 2,
+                    "host_links_3": 1,
+                    "host_links_4": 2,
+                    "host_links_5": 1
                 }
             }
         },
@@ -204,20 +204,20 @@
                             }
                         ],
                         "link_summary": {
-                            "h1_data_1": 0,
-                            "h1_data_2": 1,
-                            "h1_data_3": 0,
-                            "h1_data_4": 0,
-                            "h1_data_5": 0
+                            "host_link_1": 2,
+                            "host_link_2": 0,
+                            "host_link_3": 4,
+                            "host_link_4": 0,
+                            "host_link_5": 0
                         }
                     }
                 ],
                 "summary": {
-                    "h1_data_1": 0,
-                    "h1_data_2": 1,
-                    "h1_data_3": 0,
-                    "h1_data_4": 0,
-                    "h1_data_5": 0
+                    "host_links_1": 2,
+                    "host_links_2": 0,
+                    "host_links_3": 4,
+                    "host_links_4": 0,
+                    "host_links_5": 0
                 }
             }
         },
@@ -231,11 +231,11 @@
             "item": {
                 "links": [],
                 "summary": {
-                    "h1_data_1": 0,
-                    "h1_data_2": 0,
-                    "h1_data_3": 0,
-                    "h1_data_4": 0,
-                    "h1_data_5": 0
+                    "host_link_1": 0,
+                    "host_link_2": 0,
+                    "host_link_3": 0,
+                    "host_link_4": 0,
+                    "host_link_5": 0
                 }
             }
         },

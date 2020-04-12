@@ -4,11 +4,11 @@
             "item": {
                 "links": [],
                 "summary": {
-                    "h1_data_1": 1,
-                    "h1_data_2": 2,
-                    "h1_data_3": 3,
-                    "h1_data_4": 4,
-                    "h1_data_5": 5
+                    "host_links_1": 0,
+                    "host_links_2": 0,
+                    "host_links_3": 0,
+                    "host_links_4": 0,
+                    "host_links_5": 0
                 }
             }
         },

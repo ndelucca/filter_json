@@ -12,20 +12,20 @@
                             }
                         ],
                         "link_summary": {
-                            "h1_data_1": 0,
-                            "h1_data_2": 1,
-                            "h1_data_3": 0,
-                            "h1_data_4": 0,
-                            "h1_data_5": 0
+                            "host_link_1": 2,
+                            "host_link_2": 0,
+                            "host_link_3": 4,
+                            "host_link_4": 0,
+                            "host_link_5": 0
                         }
                     }
                 ],
                 "summary": {
-                    "h1_data_1": 0,
-                    "h1_data_2": 1,
-                    "h1_data_3": 0,
-                    "h1_data_4": 0,
-                    "h1_data_5": 0
+                    "host_links_1": 2,
+                    "host_links_2": 0,
+                    "host_links_3": 4,
+                    "host_links_4": 0,
+                    "host_links_5": 0
                 }
             }
         },
