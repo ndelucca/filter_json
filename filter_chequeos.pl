@@ -200,7 +200,7 @@ sub render_node{
         node_chain  => sub { return get_node( $host_data, $opt ) }, # Maybe needs input filtering
     );
 
-    return $render{$opt}() if $render{$opt};
+    return $render{$opt}->() if $render{$opt};
 
     return $render{node_chain}->();
 
@@ -218,6 +218,6 @@ sub get_type {
     my $node = shift;
     return 'undefined' unless defined $node;
     my $type = $type{ref $node};
-    return 'number' if $type eq 'string' && $node =~ /^\d+$/;
+    return 'number' if $type eq 'string' && $node =~ /^\d+(?:\.\d+)?$/;
     return $type;
 }
