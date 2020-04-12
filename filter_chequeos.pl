@@ -66,10 +66,10 @@ my $json = JSON->new();
 my $data = $json->decode($file_content);
 
 my %type = (
-    'JSON::PP::Boolean' => 'Boolean',
-    'HASH'              => 'Hash',
-    'ARRAY'             => 'Array',
-    ''                  => 'String' #String or Numbers
+    'JSON::PP::Boolean' => 'boolean',
+    'HASH'              => 'hash',
+    'ARRAY'             => 'array',
+    ''                  => 'string' #String or Numbers
 );
 
 if ( $opt{schema} || !$opt{node} ) {
@@ -87,7 +87,8 @@ if ( $opt{schema} || !$opt{node} ) {
     }
 
     print "$title\n";
-    exit schema( $search );
+    schema( $search );
+    exit;
 }
 
 my $filtered = {};
@@ -100,12 +101,14 @@ for my $host (keys %$data){
 
     if ( $item ){
         if (!$opt{oper}){
+            #FIXME: fails if $item is an array or string
             $filtered->{$host} = $item_render if %{$item};
         }else{
             $filtered->{$host} = $item_render if eval "$item $opt{oper} $opt{value}";
         }
 
-        add_to_total($filtered->{$host}) if $type{ref $item_render} ne 'String';
+        #REVIEW: check condition for calling this subroutine
+        add_to_total($filtered->{$host}) if type_hash($item_render);
     }
 }
 
@@ -118,13 +121,12 @@ if($opt{render} eq 'short'){
 }
 
 sub add_to_total{
-
     my $hashref = shift;
 
     for my $i (keys %{$hashref}){
         $resumen_total{$i} += $hashref->{$i} if looks_like_number($hashref->{$i});
     }
-
+    return;
 }
 
 # Navigate through the json data received,
@@ -134,30 +136,26 @@ sub schema {
     my $level = shift // 0;
     my $tab = '|   ';
     $level++;
-    if ($type{ref $data} eq 'Hash') {
+    if ( type_hash($data) ) {
         foreach my $node (sort keys %$data ){
-            my $node_type = $type{ref $data->{$node}};
-            printf '%s%s: %s'.$/, ($tab x $level), $node, $node_type;
-            schema($data->{$node},$level)
-                unless $node_type eq 'String' || $node_type eq 'Boolean';
+            my $inode = $data->{$node};
+            printf '%s%s: %s'.$/, ($tab x $level), $node, ucfirst get_type($inode);
+            schema($inode,$level)
+                unless type_string($inode) || type_bool($inode);
         }
     }
-    elsif ($type{ref $data} eq 'Array') {
+    elsif ( type_array($data) ) {
         my $p = 0;
-        my $node = $data->[$p];
-        my $node_type = $type{ref $node };
-        printf '%s[%s]: %s'.$/, ($tab x $level), $p, $node_type;
-        #FIXME: $node_type is 'String' when array is empty
-        schema($node,$level)
-            unless $node_type eq 'String' || $node_type eq 'Boolean';
+        my $inode = $data->[$p];
+        printf '%s[%s]: %s'.$/, ($tab x $level), $p, ucfirst get_type($inode);
+        #FIXME: inode type is 'String' when array is empty!
+        schema($inode,$level)
+            unless type_string($inode) || type_bool($inode);
     }
-    elsif ($type{ref $data} eq 'String') {
-        print "String";
+    else {
+        print ucfirst get_type($data) if $level == 1;
     }
-    elsif ($type{ref $data} eq 'Boolean') {
-        print "Boolean";
-    }
-
+    return;
 }
 
 sub get_node{
@@ -206,4 +204,20 @@ sub render_node{
 
     return $render{node_chain}->();
 
+}
+
+# ================= Types management =====================
+
+sub type_hash   { return get_type($_[0]) eq 'hash'    }
+sub type_array  { return get_type($_[0]) eq 'array'   }
+sub type_string { return get_type($_[0]) eq 'string'  }
+sub type_number { return get_type($_[0]) eq 'number'  }
+sub type_bool   { return get_type($_[0]) eq 'boolean' }
+
+sub get_type {
+    my $node = shift;
+    return 'undefined' unless defined $node;
+    my $type = $type{ref $node};
+    return 'number' if $type eq 'string' && $node =~ /^\d+$/;
+    return $type;
 }
