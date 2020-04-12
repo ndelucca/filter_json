@@ -21,17 +21,24 @@ Opciones:
   short:    se muestra solo la estructura definida en -n
   <node chain>  se muestra una estructura segun patron ingresado, con mismo formato que -n
 
-Filtros:
-Por default, si no se indica ningun filtro, se filtran los items vacios
+-f -filter filtro a aplicar. Si el filtro tiene argumentos, separarlos con ,
 
--o -oper   operacion a evaluar. Por ej. ">" "eq" "=="
--v -value  valor umbral a evaluar. solo se usa en conjunto con -o
+Filtros disponibles:
+    gt|ngt:  valor del nodo mayor a <val>.           Uso: -f gt,<string> | -f ngt,<number>
+    ge|nge:  valor del nodo mayor o igual a <val>    Uso: -f ge,<string> | -f nge,<number>
+    lt|nlt:  valor del nodo menor a <val>            Uso: -f lt,<string> | -f nlt,<number>
+    le|nle:  valor del nodo menor o igual a <val>    Uso: -f le,<string> | -f nle,<number>
+    eq|neq:  valor del nodo igual a <val>            Uso: -f eq,<string> | -f neq,<number>
+    ne|nne:  valor del nodo distinto a <val>         Uso: -f ne,<string> | -f nne,<number>
+    null:    nodos sin contenido o contenido null    Uso: -f null
+    notnull: nodos con contenido distinto de null    Uso: -f notnull
 
 EOT
 
 my %opt = (
     render => 'full',
-    node => ''
+    node => '',
+    filter => 'notnull',
 );
 GetOptions (
     \%opt,
@@ -39,8 +46,7 @@ GetOptions (
     'schema|s',
     'node|n=s',
     'render|r=s',
-    'oper|o=s',
-    'value|v=i',
+    'filter|f=s',
     'total|t',
 ) or die $usage;
 
@@ -49,7 +55,7 @@ my $filename = shift @ARGV or die "Debe indicar un archivo";
 die $usage if $opt{help};
 
 # Traigo el reporte
-open my $fh, '<', $filename or die "No puede abrirse el archivo json";
+open my $fh, '<', $filename or die "No puede abrirse el archivo json. $!";
 read $fh, my $file_content, -s $fh;
 close $fh;
 
@@ -64,6 +70,7 @@ for my $enc (keys %encoding_rpl){
 my $json = JSON->new();
 my $data = $json->decode($file_content);
 
+# Definition of variable types in the structure
 my %type = (
     'JSON::PP::Boolean' => 'boolean',
     'HASH'              => 'hash',
@@ -71,10 +78,62 @@ my %type = (
     ''                  => 'string' #String or Numbers
 );
 
-if ( $opt{schema} || !$opt{node} ) {
+get_schema($data) if ( $opt{schema} || !$opt{node} );
+
+my $filtered = {};
+my %resumen_total = ();
+
+my $filters = {
+    'gt' => sub { return $_[0] gt $_[1] },
+    'ge' => sub { return $_[0] ge $_[1] },
+    'lt' => sub { return $_[0] lt $_[1] },
+    'le' => sub { return $_[0] le $_[1] },
+    'eq' => sub { return $_[0] eq $_[1] },
+    'ne' => sub { return $_[0] ne $_[1] },
+    'ngt' => sub { return $_[0] > $_[1] },
+    'nge' => sub { return $_[0] >= $_[1] },
+    'nlt' => sub { return $_[0] < $_[1] },
+    'nle' => sub { return $_[0] <= $_[1] },
+    'neq' => sub { return $_[0] == $_[1] },
+    'nne' => sub { return $_[0] != $_[1] },
+    'null' => sub { return 1 },# FIXME
+    'notnull' => sub { return 1 },# FIXME
+};
+
+for my $host (keys %$data){
+
+    my $item = get_node( $data->{$host}, $opt{node} );
+    my $item_render = render_node( $data->{$host}, $opt{node} , $opt{render} );
+
+    $filtered->{$host} = $item_render if filter( $item, $opt{filter} );
+
+    #REVIEW: check condition for calling this subroutine
+    # Keep in mind that we probably need to work with $filtered->{$host} from now on
+    # add_to_total($filtered->{$host}) if type_hash($item_render);
+
+}
+
+print $json->utf8->pretty(1)->encode($filtered);
+exit;
+
+# =================== TODO AGGREGATE DATA================================
+
+# sub add_to_total{
+#     my $hashref = shift;
+
+#     for my $i (keys %{$hashref}){
+#         $resumen_total{$i} += $hashref->{$i} if looks_like_number($hashref->{$i});
+#     }
+#     return;
+# }
+
+# ==================== Schema management =======================
+
+sub get_schema {
+
+    my $data = shift;
     #FIXME: random host selection may choose one with an empty array.
     #       This won't print the structure of the elements it may contain.
-    #TODO: throw everything inside a function
     my $random_host = (keys %$data)[0];
 
     my $title = 'host';
@@ -89,43 +148,7 @@ if ( $opt{schema} || !$opt{node} ) {
     print "$title\n";
     schema( $search );
     exit;
-}
 
-my $filtered = {};
-my %resumen_total = ();
-
-#TODO: Complete with required operations isnull, notnull?
-my $operations = {
-    'gt' => sub { return $_[0] > $_[1] },
-};
-
-for my $host (keys %$data){
-
-    my $item = get_node( $data->{$host}, $opt{node} );
-    my $item_render = render_node( $data->{$host}, $opt{node} , $opt{render} );
-
-    if (!$opt{oper}){
-        $filtered->{$host} = $item_render;
-    }else{
-        my $op = $operations->{$opt{oper}} || die "Operacion $opt{oper} desconocida";
-        $filtered->{$host} = $item_render if $op->($item, $opt{value});
-    }
-
-    #REVIEW: check condition for calling this subroutine
-    # add_to_total($filtered->{$host}) if type_hash($item_render);
-
-}
-
-print $json->utf8->pretty(1)->encode($filtered);
-exit;
-
-sub add_to_total{
-    my $hashref = shift;
-
-    for my $i (keys %{$hashref}){
-        $resumen_total{$i} += $hashref->{$i} if looks_like_number($hashref->{$i});
-    }
-    return;
 }
 
 # Navigate through the json data received,
@@ -157,6 +180,8 @@ sub schema {
     return;
 }
 
+# =================== Search engine ====================
+
 sub get_node{
     my $host = shift;
     my $nodes_str = shift;
@@ -187,6 +212,8 @@ sub get_node{
     return $selected;
 }
 
+# ========== Display and render management =============
+
 sub render_node{
     my $host_data = shift;
     my $nodes_str = shift;
@@ -201,6 +228,20 @@ sub render_node{
     my $render = $render_options{$opt} || $render_options{node_chain};
     return $render->();
 
+}
+
+# ================ Filter management =====================
+
+sub filter{
+    my $item = shift;
+    my $opt = shift;
+
+    my @filter_opt = split /,/,$opt;
+    my $filter_name = shift @filter_opt;
+
+    my $filter = $filters->{ $filter_name } || die "Operacion $filters->{$filter_name} desconocida";
+
+    return $filter->( $item, @filter_opt );
 }
 
 # ================= Types management =====================
