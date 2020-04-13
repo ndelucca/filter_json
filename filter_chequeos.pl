@@ -88,18 +88,18 @@ my $filtered = {};
 my $total = {};
 
 my $filters = {
-    gt      => sub { return $_[0] gt $_[1]  },
-    ge      => sub { return $_[0] ge $_[1]  },
-    lt      => sub { return $_[0] lt $_[1]  },
-    le      => sub { return $_[0] le $_[1]  },
-    eq      => sub { return $_[0] eq $_[1]  },
-    ne      => sub { return $_[0] ne $_[1]  },
-    ngt     => sub { return $_[0] >  $_[1]  },
-    nge     => sub { return $_[0] >= $_[1]  },
-    nlt     => sub { return $_[0] <  $_[1]  },
-    nle     => sub { return $_[0] <= $_[1]  },
-    neq     => sub { return $_[0] == $_[1]  },
-    nne     => sub { return $_[0] != $_[1]  },
+    gt      => sub { return ($_[0] // 0) gt $_[1]  },
+    ge      => sub { return ($_[0] // 0) ge $_[1]  },
+    lt      => sub { return ($_[0] // 0) lt $_[1]  },
+    le      => sub { return ($_[0] // 0) le $_[1]  },
+    eq      => sub { return ($_[0] // 0) eq $_[1]  },
+    ne      => sub { return ($_[0] // 0) ne $_[1]  },
+    ngt     => sub { return ($_[0] // 0) >  $_[1]  },
+    nge     => sub { return ($_[0] // 0) >= $_[1]  },
+    nlt     => sub { return ($_[0] // 0) <  $_[1]  },
+    nle     => sub { return ($_[0] // 0) <= $_[1]  },
+    neq     => sub { return ($_[0] // 0) == $_[1]  },
+    nne     => sub { return ($_[0] // 0) != $_[1]  },
     #A JSON null atom becomes undef in Perl
     null    => sub { return ! defined $_[0] || empty_hash($_[0]) || empty_array($_[0]) },
     notnull => sub { return   defined $_[0] && ( !empty_hash($_[0])  || !empty_array($_[0]) ) },
@@ -111,11 +111,10 @@ for my $host (keys %$data){
 
     my $item = get_node( $data->{$host}, $opt{node} );
     my $item_render = render_node( $data->{$host}, $opt{node} , $opt{render} );
-
-    $filtered->{$host} = $item_render if filter( $item, $opt{filter} );
-
-    aggregate_data( get_node( $data->{$host}, $opt{total} ) ) if $opt{total};
-
+    if ( filter( $item, $opt{filter} ) ){
+        $filtered->{$host} = $item_render;
+        aggregate_data( get_node( $data->{$host}, $opt{total} ) ) if $opt{total};
+    }
 }
 
 $filtered = $total if $opt{total};
