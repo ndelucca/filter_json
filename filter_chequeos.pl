@@ -11,27 +11,39 @@ my $usage = <<EOT;
 Uso: $0 <archivo_json> [OPTIONS]
 
 Opciones:
--s -schema muestra la estructura del archivo json
 
--n -node   cadena de nodos donde buscar separados con ,
-           indicando key de hash o [0] para un array
+-s -schema
+    muestra la estructura del archivo json
 
--r -render define la estructura que se desea mostrar (default: full)
-  full:     se muestra todos los datos del host
-  short:    se muestra solo la estructura definida en -n
-  <node chain>  se muestra una estructura segun patron ingresado, con mismo formato que -n
+-n -node <node_chain>
+    cadena de nodos donde buscar separados con ,
+    indicando key de hash o [0] para un array
 
--f -filter filtro a aplicar. Si el filtro tiene argumentos, separarlos con ,
+-r -render [OPTIONS]
+    define la estructura que se desea mostrar (default: full)
+        full:     se muestra todos los datos del host
+        short:    se muestra solo la estructura definida en -n
+        <node chain>  se muestra una estructura segun patron ingresado
 
-Filtros disponibles (default: notnull)
-    notnull: nodos con contenido distinto de null    Uso: -f notnull
-    null:    nodos sin contenido o contenido null    Uso: -f null
-    gt|ngt:  valor del nodo mayor a <val>.           Uso: -f gt,<string> | -f ngt,<number>
-    ge|nge:  valor del nodo mayor o igual a <val>    Uso: -f ge,<string> | -f nge,<number>
-    lt|nlt:  valor del nodo menor a <val>            Uso: -f lt,<string> | -f nlt,<number>
-    le|nle:  valor del nodo menor o igual a <val>    Uso: -f le,<string> | -f nle,<number>
-    eq|neq:  valor del nodo igual a <val>            Uso: -f eq,<string> | -f neq,<number>
-    ne|nne:  valor del nodo distinto a <val>         Uso: -f ne,<string> | -f nne,<number>
+-t -total <node_chain>
+    realiza la suma de todos los items de un nodo segun patron ingresado
+    suma segun contenido:
+        hash: cantidad por cada key particular
+        array: cantidad de items de array
+        number: suma total
+
+-f -filter [OPTIONS]
+    filtro a aplicar. Si el filtro tiene argumentos, separarlos con ,
+
+    Filtros disponibles (default: notnull)
+        notnull: nodos con contenido distinto de null  Uso: -f notnull
+        null:    nodos sin contenido o contenido null  Uso: -f null
+        gt|ngt:  valor del nodo mayor a <val>.         Uso: -f gt,<string> | -f ngt,<number>
+        ge|nge:  valor del nodo mayor o igual a <val>  Uso: -f ge,<string> | -f nge,<number>
+        lt|nlt:  valor del nodo menor a <val>          Uso: -f lt,<string> | -f nlt,<number>
+        le|nle:  valor del nodo menor o igual a <val>  Uso: -f le,<string> | -f nle,<number>
+        eq|neq:  valor del nodo igual a <val>          Uso: -f eq,<string> | -f neq,<number>
+        ne|nne:  valor del nodo distinto a <val>       Uso: -f ne,<string> | -f nne,<number>
 
 EOT
 
@@ -47,7 +59,7 @@ GetOptions (
     'node|n=s',
     'render|r=s',
     'filter|f=s',
-    'total|t',
+    'total|t=s',
 ) or die $usage;
 
 my $filename = shift @ARGV or die "Debe indicar un archivo";
@@ -73,7 +85,7 @@ my $data = $json->decode($file_content);
 get_schema($data) if ( $opt{schema} || !$opt{node} );
 
 my $filtered = {};
-my %resumen_total = ();
+my $total = {};
 
 my $filters = {
     gt      => sub { return $_[0] gt $_[1]  },
@@ -102,25 +114,31 @@ for my $host (keys %$data){
 
     $filtered->{$host} = $item_render if filter( $item, $opt{filter} );
 
-    #REVIEW: check condition for calling this subroutine
-    # Keep in mind that we probably need to work with $filtered->{$host} from now on
-    # add_to_total($filtered->{$host}) if type_hash($item_render);
+    aggregate_data( get_node( $data->{$host}, $opt{total} ) ) if $opt{total};
 
 }
 
+$filtered = $total if $opt{total};
 print $json->utf8->pretty(1)->encode($filtered);
 exit;
 
 # =================== TODO AGGREGATE DATA================================
 
-# sub add_to_total{
-#     my $hashref = shift;
+sub aggregate_data{
+    my $node = shift;
 
-#     for my $i (keys %{$hashref}){
-#         $resumen_total{$i} += $hashref->{$i} if looks_like_number($hashref->{$i});
-#     }
-#     return;
-# }
+    if( is_hash($node) ) {
+        for my $item (sort keys %$node ){
+            $total->{$item} += @{$node->{$item}} if is_array($node->{$item});
+            $total->{$item} += $node->{$item} if is_number($node->{$item});
+        }
+    }else{
+        $total->{count} += @$node if is_array($node);
+        $total->{count} += $node  if is_number($node);
+    }
+
+    return;
+}
 
 # ==================== Schema management =======================
 

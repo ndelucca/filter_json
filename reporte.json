@@ -28,6 +28,7 @@
                             }
                         ],
                         "resumen": {
+                            "test_arr": [1,2,3],
                             "con_timestamp_duplicado": 0,
                             "con_timestamp_mas_uno": 0,
                             "no_recuperados": 1,
@@ -127,6 +128,7 @@
                     }
                 ],
                 "resumen": {
+                    "test_array":[1,2,3,4,5],
                     "con_timestamp_duplicado": 0,
                     "con_timestamp_mas_uno": 0,
                     "no_recuperados": 2,
