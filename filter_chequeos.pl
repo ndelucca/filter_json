@@ -5,7 +5,6 @@ use warnings;
 use File::Path;
 use JSON;
 use Getopt::Long qw(GetOptions);
-use Scalar::Util qw(looks_like_number);
 
 my $usage = <<EOT;
 Uso: $0 <archivo_json> [OPTIONS]
@@ -37,7 +36,6 @@ Opciones:
 
     Filtros disponibles (default: notnull)
         notnull: nodos con contenido distinto de null  Uso: -f notnull
-        null:    nodos sin contenido o contenido null  Uso: -f null
         gt|ngt:  valor del nodo mayor a <val>.         Uso: -f gt,<string> | -f ngt,<number>
         ge|nge:  valor del nodo mayor o igual a <val>  Uso: -f ge,<string> | -f nge,<number>
         lt|nlt:  valor del nodo menor a <val>          Uso: -f lt,<string> | -f nlt,<number>
@@ -88,18 +86,18 @@ my $filtered = {};
 my $total = {};
 
 my $filters = {
-    gt      => sub { return ($_[0] // 0) gt $_[1]  },
-    ge      => sub { return ($_[0] // 0) ge $_[1]  },
-    lt      => sub { return ($_[0] // 0) lt $_[1]  },
-    le      => sub { return ($_[0] // 0) le $_[1]  },
-    eq      => sub { return ($_[0] // 0) eq $_[1]  },
-    ne      => sub { return ($_[0] // 0) ne $_[1]  },
-    ngt     => sub { return ($_[0] // 0) >  $_[1]  },
-    nge     => sub { return ($_[0] // 0) >= $_[1]  },
-    nlt     => sub { return ($_[0] // 0) <  $_[1]  },
-    nle     => sub { return ($_[0] // 0) <= $_[1]  },
-    neq     => sub { return ($_[0] // 0) == $_[1]  },
-    nne     => sub { return ($_[0] // 0) != $_[1]  },
+    gt      => sub { return ($_[0] ) gt $_[1]  },
+    ge      => sub { return ($_[0] ) ge $_[1]  },
+    lt      => sub { return ($_[0] ) lt $_[1]  },
+    le      => sub { return ($_[0] ) le $_[1]  },
+    eq      => sub { return ($_[0] ) eq $_[1]  },
+    ne      => sub { return ($_[0] ) ne $_[1]  },
+    ngt     => sub { return ($_[0] ) >  $_[1]  },
+    nge     => sub { return ($_[0] ) >= $_[1]  },
+    nlt     => sub { return ($_[0] ) <  $_[1]  },
+    nle     => sub { return ($_[0] ) <= $_[1]  },
+    neq     => sub { return ($_[0] ) == $_[1]  },
+    nne     => sub { return ($_[0] ) != $_[1]  },
     #A JSON null atom becomes undef in Perl
     null    => sub { return ! defined $_[0] || empty_hash($_[0]) || empty_array($_[0]) },
     notnull => sub { return   defined $_[0] && ( !empty_hash($_[0])  || !empty_array($_[0]) ) },
@@ -111,7 +109,7 @@ for my $host (keys %$data){
 
     my $item = get_node( $data->{$host}, $opt{node} );
     my $item_render = render_node( $data->{$host}, $opt{node} , $opt{render} );
-    if ( filter( $item, $opt{filter} ) ){
+    if ( $item && filter( $item, $opt{filter} ) ){
         $filtered->{$host} = $item_render;
         aggregate_data( get_node( $data->{$host}, $opt{total} ) ) if $opt{total};
     }
@@ -182,7 +180,6 @@ sub schema {
         my $p = 0;
         my $inode = $data->[$p];
         printf '%s[%s]: %s'.$/, ($tab x $level), $p, ucfirst get_type($inode);
-        #FIXME: inode type is 'String' when array is empty!
         schema($inode,$level)
             unless is_string($inode) || is_bool($inode);
     }
@@ -210,10 +207,9 @@ sub get_node{
     my $start_node = shift @nodes;
 
     my $selected = $host->{$start_node};
-    # Using while to be able to check ahead later, and maybe guess if things are going sour
+
     while (@nodes){
         my $node = shift @nodes;
-        #FIXME: Should I check before if the requested item exists?
         if ($node =~ /\[(\d+)\]/){
             $selected = $selected->[$1];
         }else{
@@ -234,7 +230,7 @@ sub render_node{
     my %render_options = (
         full        => sub { return get_node( $host_data ) },
         short       => sub { return get_node( $host_data, $nodes_str ) },
-        node_chain  => sub { return get_node( $host_data, $opt ) }, # Maybe needs input filtering
+        node_chain  => sub { return get_node( $host_data, $opt ) },
     );
 
     my $render = $render_options{$opt} || $render_options{node_chain};
