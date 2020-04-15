@@ -31,6 +31,9 @@ Opciones:
         array: cantidad de items de array
         number: suma total
 
+-h -host <list>
+    Muestra solo los host indicados en una lista separada por ,
+
 -f -filter [OPTIONS]
     filtro a aplicar. Si el filtro tiene argumentos, separarlos con ,
 
@@ -52,12 +55,14 @@ my %opt = (
 );
 GetOptions (
     \%opt,
-    'help|h',
+    'help',
     'schema|s',
     'node|n=s',
     'render|r=s',
     'filter|f=s',
     'total|t=s',
+    'host|h=s',
+    ,
 ) or die $usage;
 
 my $filename = shift @ARGV or die "Debe indicar un archivo";
@@ -70,7 +75,13 @@ read $fh, my $file_content, -s $fh;
 close $fh;
 
 # ================= Filtro de caracteres codificados en latin1 =================
-my %encoding_rpl =( i => '\\\udced', e => '\\\udce9', o => '\\\udcf3');
+my %encoding_rpl =(
+    a => '\\\udce1',
+    i => '\\\udced',
+    I => '\\\udccd',
+    e => '\\\udce9',
+    o => '\\\udcf3',
+    O => '\\\udcd3');
 for my $enc (keys %encoding_rpl){
     $file_content =~ s/$encoding_rpl{$enc}/$enc/g if $file_content =~ /$encoding_rpl{$enc}/;
 }
@@ -107,9 +118,13 @@ my $filters = {
 
 for my $host (keys %$data){
 
+    next if $opt{host} && !is_selected($host,$opt{host});
+
     my $item = get_node( $data->{$host}, $opt{node} );
     my $item_render = render_node( $data->{$host}, $opt{node} , $opt{render} );
-    if ( $item && filter( $item, $opt{filter} ) ){
+
+    # FIXME This must be the notnull filter, but if opt is notnull then we are filtering twice
+    if ( filter( $item,'notnull' ) && filter( $item, $opt{filter} ) ){
         $filtered->{$host} = $item_render;
         aggregate_data( get_node( $data->{$host}, $opt{total} ) ) if $opt{total};
     }
@@ -142,17 +157,15 @@ sub aggregate_data{
 sub get_schema {
 
     my $data = shift;
-    #FIXME: random host selection may choose one with an empty array.
-    #       This won't print the structure of the elements it may contain.
-    my $random_host = (keys %$data)[0];
+    my $host_candidate = get_candidate($data);
 
     my $title = 'host';
-    my $search = $data->{ $random_host };
+    my $search = $data->{ $host_candidate };
 
     if($opt{node}){
         $title.= $_ for map { $_ =~ /\[(\d+)\]/ ? "->[$1]" : "->{$_}" }
                         split /,/,$opt{node};
-        $search = get_node($data->{ $random_host },$opt{node});
+        $search = get_node($data->{ $host_candidate },$opt{node});
     }
 
     print "$title\n";
@@ -220,6 +233,16 @@ sub get_node{
     return $selected;
 }
 
+sub is_selected{
+    my $host = shift;
+    my $host_list = shift;
+
+    my %hosts = map { $_ => 1 } split /,/,$host_list;
+
+    return 1 if exists($hosts{$host});
+    return 0;
+}
+
 # ========== Display and render management =============
 
 sub render_node{
@@ -275,3 +298,32 @@ sub get_type {
     return 'string' if $ref eq '';
     return lc $ref; #array or hash
 }
+
+# ========== Magic Stuff ==========
+
+sub get_candidate{
+
+    my $data = shift;
+    my @datarr = keys %{$data};
+
+    my $node = {
+        index => 0,
+        niveles => 0,
+    };
+    my $top = scalar @datarr - 1;
+    for (0..$top){
+        my $content = $json->encode($data->{$datarr[$_]});
+        my $niveles = () = $content =~ /:/g;
+
+        if ($niveles > $node->{niveles}){
+            $node->{index} = $_;
+            $node->{niveles} = $niveles;
+        }
+
+    }
+
+    return $datarr[$node->{index}];
+
+}
+
+
