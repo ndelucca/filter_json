@@ -74,19 +74,6 @@ open my $fh, '<', $filename or die "No puede abrirse el archivo json. $!";
 read $fh, my $file_content, -s $fh;
 close $fh;
 
-# ================= Filtro de caracteres codificados en latin1 =================
-my %encoding_rpl =(
-    a => '\\\udce1',
-    i => '\\\udced',
-    I => '\\\udccd',
-    e => '\\\udce9',
-    o => '\\\udcf3',
-    O => '\\\udcd3');
-for my $enc (keys %encoding_rpl){
-    $file_content =~ s/$encoding_rpl{$enc}/$enc/g if $file_content =~ /$encoding_rpl{$enc}/;
-}
-# ==============================================================================
-
 # Buscamos la cosa
 my $json = JSON->new();
 my $data = $json->decode($file_content);
