@@ -295,16 +295,16 @@ sub get_candidate{
 
     my $node = {
         index => 0,
-        niveles => 0,
+        levels => 0,
     };
     my $top = scalar @datarr - 1;
     for (0..$top){
         my $content = $json->encode($data->{$datarr[$_]});
-        my $niveles = () = $content =~ /:/g;
+        my $levels = () = $content =~ /:/g;
 
-        if ($niveles > $node->{niveles}){
+        if ($levels > $node->{levels}){
             $node->{index} = $_;
-            $node->{niveles} = $niveles;
+            $node->{levels} = $levels;
         }
 
     }
